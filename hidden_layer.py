@@ -64,6 +64,22 @@ def linear_activation_forward(A_pre , W , b , activation):
 
 	return A , cache
 
+def L_model_forward(X, parameters):
+	caches = [] 
+	A = X
+	L = len(parameters)
+
+	for i in range(1,L)
+		A_prev = A
+		A , cache = linear_activation_forward(A_prev , parameters["W"+str(l)] , parameters["b"+str(l)] , activation = "relu")
+		caches.append(cache)
+	AL , cache = linear_activation_forward(A_prev , parameters["W"+str(l)] , parameters["b"+str(l)] , activation = "sigmoid")
+	caches.append(cache)
+
+
+	assert(AL.shape == (1, X.shape[1]))
+	return AL, caches
+	
 def main():
 	#initialize_parameters(3,2,1)
 	#initialize_parameters_deep([3,5,3,4,3])
@@ -73,7 +89,11 @@ def main():
 	#print("Z = "+str(Z))
 #-----------------------------------------------------------
 #----------------to test linear_activation_forward----------
-	#A_pre ,W,b = linear_activation_forward(A_pre ,W ,b , activation = "sigmoit")
-
+	A_pre ,W,b =  linear_activation_forward_test_case()
+	#A , linear_activation_cache = linear_activation_forward(A_pre ,W ,b , activation = "sigmoid")
+	#print("with sigmoid : A =" + str(A))
+	#A,linear_activation_cache = linear_activation_forward(A_prev , W,b,activation = "relu")
+	#print("with reLU: A = " + str(A))
+	
 if __name__ == "__main__":
 	main()		
