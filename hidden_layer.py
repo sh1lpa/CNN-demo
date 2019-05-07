@@ -79,7 +79,17 @@ def L_model_forward(X, parameters):
 
 	assert(AL.shape == (1, X.shape[1]))
 	return AL, caches
+
 	
+def compute_cost(AL, Y)
+	m = Y.shape[1]
+	cost = -(np.sum(Y*log(AL) , (1-Y) * log(1-AL)))/m
+	cost = np.squeeze(cost)
+	assert(cost.shape == ())
+	return cost
+	
+
+
 def main():
 	#initialize_parameters(3,2,1)
 	#initialize_parameters_deep([3,5,3,4,3])
