@@ -1,6 +1,6 @@
 # CNN 
 Testing the accuracy of basic CNN network over different data inputs 
-timeline :                                                              15 th MAY 2019
+timeline :                                                              
 
 
 Step 1 :
