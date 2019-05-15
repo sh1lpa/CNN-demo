@@ -22,4 +22,5 @@ Step 3 :
     the Next Generation of Machine Learning 
 
      https://ieeexplore.ieee.org/abstract/document/1257420
+     
      https://towardsdatascience.com/spiking-neural-networks-the-next-generation-of-machine-learning-84e167f4eb2b
