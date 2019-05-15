@@ -19,7 +19,7 @@ fashion_mnist = keras.datasets.fashion_mnist
 # print(test_images.shape)
 # print(len(test_labels))
 
-# plt.imshow(train_images[1])
+plt.imshow(train_images[1])
 
 # plt.grid(True,color='k')
 # plt.show()

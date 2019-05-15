@@ -1,5 +1,7 @@
 import numpy as np
-import matplotlib 
+import tensorflow as tf
+from tensorflow import keras
+import matplotlib.pyplot as plt
 
 
 def initialize_parameters(n_x=2,n_h=3,n_y=2):
@@ -36,30 +38,32 @@ def initialize_parameters_deep(layer_dims):
 		parameters['W'+str(l)] = np.random.randn(layer_dims[l],layer_dims[l-1])*0.01
 		parameters['b'+str(l)] = np.zeros((layer_dims[l],1))
 
-		print(parameters['W'+str(l)])
+		#print(parameters['W'+str(l)])
 
 		assert(parameters['W'+str(l)].shape == (layer_dims[l],layer_dims[l-1]))
 		assert(parameters['b'+str(l)].shape == (layer_dims[l],1))
 
 	return parameters
 
+def relu(Z):
+	#todo
 
 def linear_forward(A,W,B):
 	Z = np.dot(W,A)+B
 	assert(Z.shape == (W.shape[0],A.shape[1]))
-	cache(A,W,B)
+	cache = (A,W,B)
 	return Z , cache
 
 def linear_activation_forward(A_pre , W , b , activation):
-	if activation == "sigmoid"
+	if activation == "sigmoid":
 		Z , linear_cache = linear_forward( A_pre , W ,b)
 		A , activation_cache = sigmoid(Z)
 
 	elif activation == "relu":
-		Z,linear_forward(A_pre ,W , b)
+		Z= linear_forward(A_pre ,W , b)
 		A, activation_cache = relu(Z)
 
-	assert(A.shape == W.shape[0],A.shape[1])
+	#assert(A.shape == W.shape[0],A.shape[1])
 	cache = (linear_cache , activation_cache)
 
 	return A , cache
@@ -69,11 +73,11 @@ def L_model_forward(X, parameters):
 	A = X
 	L = len(parameters)
 
-	for i in range(1,L)
+	for i in range(1,L):
 		A_prev = A
 		A , cache = linear_activation_forward(A_prev , parameters["W"+str(l)] , parameters["b"+str(l)] , activation = "relu")
 		caches.append(cache)
-	AL , cache = linear_activation_forward(A_prev , parameters["W"+str(l)] , parameters["b"+str(l)] , activation = "sigmoid")
+	AL , cache = linear_activation_forward(A_prev , parameters["W"+str(l)] , parameters["b"+str(l)] , activation = "softmax")
 	caches.append(cache)
 
 
@@ -81,27 +85,81 @@ def L_model_forward(X, parameters):
 	return AL, caches
 
 	
-def compute_cost(AL, Y)
+def compute_cost(AL, Y):
 	m = Y.shape[1]
 	cost = -(np.sum(Y*log(AL) , (1-Y) * log(1-AL)))/m
 	cost = np.squeeze(cost)
 	assert(cost.shape == ())
 	return cost
 	
+def linear_backward(dZ , cache ):
+	A_prev , W ,b = cache 
+	m = A_prev.shape[1]
+	dW = np.dot( dZ , A_prev.T)/m
+	db = np.sum(dZ , axis=1 , keepdims = True)/m
+	dA_pre = np.dot(W.T,dZ)
 
+	assert (dA_pre.shape==A.shape)
+	assert	(dW.shape == W.shape)
+	assert	(db.shape==b.shape)
+	return dA_pre , dW , db
+
+def relu_backward(dA , activation_cache):
+	#todo
+def softmax_backward(dA , activation_cache):
+	#todo
+
+def linear_activation_backward(dA , cache , activation):
+	linear_cache , activation_cache = cache
+
+	if activation == "relu":
+		dZ = relu_backward(dA,activation_cache)
+		dA_pre , dW , db = linear_backward(dZ , cache)
+
+	elif activation == "softmax":
+		dZ = softmax_backward(dA , activation_cache)
+		dA_pre , dW , db = linear_backward(dZ , cache)	
+
+	return dA_pre, dW , db	
 
 def main():
+	fashion_mnist = keras.datasets.fashion_mnist
+
+	
+	(train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
+	print(type(train_images))
+	batch = 63
+	#get the 1st batch of images from 60,000 images 
+	batch1_images=np.zeros((64,28,28))
+	for i in range(batch):
+		batch1_images[i] = train_images[i]
+	plt.figure(figsize=(10,10))
+	# flatten the images to required dimensions
+	batch_ = np.reshape(batch1_images , (64,784))
+	batch_ = batch_.transpose()
+	#print(batch_.shape)
+	#plt.subplot(5,5,i+1)
+	plt.grid(False)
+	plt.imshow(batch1_images[0])
+	#plt.imshow(train_images[0])
+	#plt.show()
 	#initialize_parameters(3,2,1)
-	#initialize_parameters_deep([3,5,3,4,3])
+
+	parameters = initialize_parameters_deep([784,300,10])
 #-------------------to test linear forward------------------
-	#A,W,b = linear_forward_test_case()
-	#Z , linear_cache = linear_forward(A,W,b)
-	#print("Z = "+str(Z))
+	# A =  batch_
+	# W = parameters["W1"]
+	# b = parameters["b1"]
+	# Z , linear_cache = linear_forward(A,W,b)
+	# print("Z = "+str(Z))
+	# print(Z.shape)
 #-----------------------------------------------------------
 #----------------to test linear_activation_forward----------
-	A_pre ,W,b =  linear_activation_forward_test_case()
-	#A , linear_activation_cache = linear_activation_forward(A_pre ,W ,b , activation = "sigmoid")
-	#print("with sigmoid : A =" + str(A))
+	A_pre = batch_
+	W = parameters["W1"]
+	b = parameters["b1"]
+	A , linear_activation_cache = linear_activation_forward(A_pre ,W ,b , activation = "relu")
+	print("with sigmoid : A =" + str(A))
 	#A,linear_activation_cache = linear_activation_forward(A_prev , W,b,activation = "relu")
 	#print("with reLU: A = " + str(A))
 	
