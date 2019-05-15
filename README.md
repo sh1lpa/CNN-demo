@@ -14,6 +14,12 @@ Step 3 :
   modify the values of parameters according to type of data 
   amd update parameters depending on the accuracy.
   
-  
- Conclusions :
  
+ 
+ 
+ Links :
+ 1) Spiking Neural Networks, 
+    the Next Generation of Machine Learning 
+
+     https://ieeexplore.ieee.org/abstract/document/1257420
+     https://towardsdatascience.com/spiking-neural-networks-the-next-generation-of-machine-learning-84e167f4eb2b
