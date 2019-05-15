@@ -1,0 +1,11 @@
+Sigmoid and Tanh limitations : 
+
+A general problem with both the sigmoid and tanh functions is that they saturate. 
+This means that large values snap to 1.0 and small values snap to -1 or 0 for tanh and sigmoid respectively. 
+Further, the functions are only really sensitive to changes around their mid-point of their input, 
+such as 0.5 for sigmoid and 0.0 for tanh.
+
+The limited sensitivity and saturation of the function happen regardless 
+of whether the summed activation from the node provided as input contains useful information or not.
+Once saturated, it becomes challenging for the learning algorithm to continue to adapt the weights
+to improve the performance of the model.
