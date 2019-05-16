@@ -47,8 +47,8 @@ def initialize_parameters_deep(layer_dims):
 
 def relu(Z , linear_cache):
 	print(type(Z))
-	activation_cache = linear_cache
-	A = np.maximum(0.0 , Z)
+	activation_cache = Z
+	A = Z.*(Z > 0)#np.maximum(0.0 , Z)
 	return A , activation_cache
 
 def linear_forward(A,W,B):
@@ -110,14 +110,15 @@ def linear_backward(dZ , cache ):
 
 def relu_backward(dA , activation_cache):
 	#todo
-	return None 
+	Z = activation_cache
+	return (1.*(Z > 0))*dA
 
 def softmax_backward(dA , activation_cache):
 	return None
 
 def linear_activation_backward(dA , cache , activation):
 	linear_cache , activation_cache = cache
-
+	
 	if activation == "relu":
 		dZ = relu_backward(dA,activation_cache)
 		dA_pre , dW , db = linear_backward(dZ , cache)
