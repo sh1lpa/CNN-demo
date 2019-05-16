@@ -45,11 +45,15 @@ def initialize_parameters_deep(layer_dims):
 
 	return parameters
 
-def relu(Z):
-	#todo
+def relu(Z , linear_cache):
+	print(type(Z))
+	activation_cache = linear_cache
+	A = np.maximum(0.0 , Z)
+	return A , activation_cache
 
 def linear_forward(A,W,B):
 	Z = np.dot(W,A)+B
+	print(type(Z))
 	assert(Z.shape == (W.shape[0],A.shape[1]))
 	cache = (A,W,B)
 	return Z , cache
@@ -60,8 +64,8 @@ def linear_activation_forward(A_pre , W , b , activation):
 		A , activation_cache = sigmoid(Z)
 
 	elif activation == "relu":
-		Z= linear_forward(A_pre ,W , b)
-		A, activation_cache = relu(Z)
+		Z, linear_cache= linear_forward(A_pre ,W , b)
+		A, activation_cache = relu(Z , linear_cache)
 
 	#assert(A.shape == W.shape[0],A.shape[1])
 	cache = (linear_cache , activation_cache)
@@ -106,8 +110,10 @@ def linear_backward(dZ , cache ):
 
 def relu_backward(dA , activation_cache):
 	#todo
+	return None 
+
 def softmax_backward(dA , activation_cache):
-	#todo
+	return None
 
 def linear_activation_backward(dA , cache , activation):
 	linear_cache , activation_cache = cache
@@ -159,9 +165,9 @@ def main():
 	W = parameters["W1"]
 	b = parameters["b1"]
 	A , linear_activation_cache = linear_activation_forward(A_pre ,W ,b , activation = "relu")
-	print("with sigmoid : A =" + str(A))
-	#A,linear_activation_cache = linear_activation_forward(A_prev , W,b,activation = "relu")
-	#print("with reLU: A = " + str(A))
+	print("with reLU : A =" + str(A))
+	#A,linear_activation_cache = linear_activation_forward(A_prev , W,b,activation = "softmax")
+	#print("with softmax: A = " + str(A))
 	
 if __name__ == "__main__":
-	main()		
+	main() 
