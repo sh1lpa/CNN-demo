@@ -56,7 +56,7 @@ def softmax(Z , linear_cache):
 	
 	#print(softmax)
 	return (np.exp(Z)/np.sum(np.exp(Z), axis=0)) , activation_cache
-
+	#using tensorfow methods
 	#return tf.exp(Z)/tf.reduce_sum(tf.exp(Z)) , activation_cache
 
 
