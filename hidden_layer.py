@@ -64,9 +64,9 @@ def softmax(Z , linear_cache):
 
 def linear_forward(A_prev,W,B):
 	print("W = " +str(W.shape)+ "W.T = " +str(W.T.shape)+ " A " +str(A_prev.shape))
-	Z = np.dot(W.T,A_prev) + B 
+	Z = np.dot(W,A_prev) + B 
 	#print(str(Z.shape) + " = "+str(W.shape[0]) + " X "+str(A_prev.shape[1]))
-	assert(Z.shape == (W.T.shape[0],(A_prev).shape[1]))
+	assert(Z.shape == (W.shape[0],(A_prev).shape[1]))
 	cache = (A_prev,W,B)
 	return Z , cache
 
