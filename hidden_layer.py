@@ -9,13 +9,13 @@ def initialize_parameters(n_x=2,n_h=3,n_y=2):
 	np.random.seed(1)
 	W1 = np.random.randn(n_h,n_x)*0.01
 	b1 =np.zeros((n_h,1))
-	W2 =np.random.randn(n_y,n_h)*0.01
-	b2=np.zeros((n_y,1))
+	W2 =np.random.randn(n_h,n_y)*0.01
+	b2=np.zeros((n_h,1))
 
 	assert(W1.shape == (n_h,n_x))
 	assert(b1.shape == (n_h,1))
-	assert(W2.shape == (n_y,n_h))
-	assert(b2.shape == (n_y,1))
+	assert(W2.shape == (n_h,n_y))
+	assert(b2.shape == (n_h,1))
 
 	parameters = {	"W1":W1,
 					"b1":b1,
@@ -35,6 +35,7 @@ def initialize_parameters_deep(layer_dims):
 	L = len(layer_dims)
 
 	for l in range(1,L):
+		print(str(layer_dims[l])+" " +str(layer_dims[l-1]))
 		parameters['W'+str(l)] = np.random.randn(layer_dims[l],layer_dims[l-1])*0.01
 		parameters['b'+str(l)] = np.zeros((layer_dims[l],1))
 
@@ -46,7 +47,7 @@ def initialize_parameters_deep(layer_dims):
 	return parameters
 
 def relu(Z , linear_cache):
-	print(type(Z))
+	#print(type(Z))
 	activation_cache = Z
 	A =np.maximum(0.0 , Z)
 	return A , activation_cache
@@ -61,20 +62,21 @@ def softmax(Z , linear_cache):
 
 
 
-def linear_forward(A,W,B):
-	Z = np.dot(W,A)+B
-	print(type(Z))
-	assert(Z.shape == (W.shape[0],A.shape[1]))
-	cache = (A,W,B)
+def linear_forward(A_prev,W,B):
+	print("W = " +str(W.shape)+ "W.T = " +str(W.T.shape)+ " A " +str(A_prev.shape))
+	Z = np.dot(W.T,A_prev) + B 
+	#print(str(Z.shape) + " = "+str(W.shape[0]) + " X "+str(A_prev.shape[1]))
+	assert(Z.shape == (W.T.shape[0],(A_prev).shape[1]))
+	cache = (A_prev,W,B)
 	return Z , cache
 
-def linear_activation_forward(A_pre , W , b , activation):
+def linear_activation_forward(A_prev, W , b , activation):
 	if activation == "softmax":
-		Z , linear_cache = linear_forward( A_pre , W ,b)
+		Z , linear_cache = linear_forward( A_prev , W ,b)
 		A , activation_cache = softmax(Z , linear_cache)
 
 	elif activation == "relu":
-		Z, linear_cache= linear_forward(A_pre ,W , b)
+		Z, linear_cache= linear_forward(A_prev ,W , b)
 		A, activation_cache = relu(Z , linear_cache)
 
 	#assert(A.shape == W.shape[0],A.shape[1])
@@ -83,19 +85,25 @@ def linear_activation_forward(A_pre , W , b , activation):
 	return A , cache
 
 def L_model_forward(X, parameters):
-	caches = [] 
+	caches = []
+	#print(parameters)
 	A = X
-	L = len(parameters)
-
-	for i in range(1,L):
+	L = len(parameters) // 2
+	for l in range(1,L):
 		A_prev = A
-		A , cache = linear_activation_forward(A_prev , parameters["W"+str(l)] , parameters["b"+str(l)] , activation = "relu")
+		#print(l)
+		#print(A_prev.shape)
+		
+		A , cache = linear_activation_forward(A_prev , parameters["W"+str(l)].T , parameters["b"+str(l)] , activation = "relu")
+		print(str ( A.shape)+"  = "+  str(parameters["W"+str(l)].shape) + " "+str(A_prev.shape)+ " "+str(parameters["b"+str(l)].shape ))
 		caches.append(cache)
-	AL , cache = linear_activation_forward(A_prev , parameters["W"+str(l)] , parameters["b"+str(l)] , activation = "softmax")
+		
+	print("--------------------------------------------------"+str(l)+"----------------------")
+	AL , cache = linear_activation_forward(A , parameters["W"+str(L)] , parameters["b"+str(L)] , activation = "softmax")
 	caches.append(cache)
 
-
-	assert(AL.shape == (1, X.shape[1]))
+	#print("AL "+ str(AL.shape))
+	#assert(AL.shape == (, X.shape[1]))
 	return AL, caches
 
 	
@@ -107,7 +115,7 @@ def compute_cost(AL, Y):
 	return cost
 	
 def linear_backward(dZ , cache ):
-	A_prev , W ,b = cache 
+	A_prev , W ,b = cache
 	m = A_prev.shape[1]
 	dW = np.dot( dZ , A_prev.T)/m
 	db = np.sum(dZ , axis=1 , keepdims = True)/m
@@ -175,10 +183,11 @@ def main():
 	A_prev = batch_
 	W = parameters["W1"]
 	b = parameters["b1"]
-	A , linear_activation_cache = linear_activation_forward(A_prev ,W ,b , activation = "relu")
-	print("with reLU : A =" + str(A))
-	A,linear_activation_cache = linear_activation_forward(A_prev , W,b,activation = "softmax")
-	print("with softmax: A = " + str(A))
-	
+	# A , linear_activation_cache = linear_activation_forward(A_prev ,W ,b , activation = "relu")
+	# print("with reLU : A =" + str(A))
+	# A,linear_activation_cache = linear_activation_forward(A_prev , W,b,activation = "softmax")
+	# print("with softmax: A = " + str(A))
+	AL , cache = L_model_forward(A_prev , parameters)
+	#print(AL)
 if __name__ == "__main__":
 	main() 
