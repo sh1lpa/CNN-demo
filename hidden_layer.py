@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 import matplotlib.pyplot as plt
-
+import math
 
 def initialize_parameters(n_x=2, n_h=3, n_y=2):
 	np.random.seed(1)
@@ -100,11 +100,11 @@ def L_model_forward(X, parameters):
 		
 		A, cache = linear_activation_forward(A_prev, parameters["W" + str(l)], parameters["b" + str(l)],
 		                                     activation="relu")
-		print(str(A.shape) + "  = " + str(parameters["W" + str(l)].shape) + " " + str(A_prev.shape) + " " + str(
-			parameters["b" + str(l)].shape))
+		#print(str(A.shape) + "  = " + str(parameters["W" + str(l)].shape) + " " + str(A_prev.shape) + " " + str(
+		#	parameters["b" + str(l)].shape))
 		caches.append(cache)
 	
-	print("--------------------------------------------------" + str(l) + "----------------------")
+	#print("--------------------------------------------------" + str(l) + "----------------------")
 	AL, cache = linear_activation_forward(A, parameters["W" + str(L)], parameters["b" + str(L)], activation="softmax")
 	caches.append(cache)
 	
@@ -115,7 +115,8 @@ def L_model_forward(X, parameters):
 
 def compute_cost(AL, Y):
 	m = Y.shape[1]
-	cost = -(np.sum(Y * log(AL), (1 - Y) * log(1 - AL))) / m
+	#print(str(Y.shape) + " "+ str(math.log(AL).shape))
+	cost = -(np.sum( Y * np.log(AL)+(1 - Y) *np.log(1 - AL))) / m
 	cost = np.squeeze(cost)
 	assert (cost.shape == ())
 	return cost
@@ -139,7 +140,6 @@ def relu_backward(dA, activation_cache):
 	Z = activation_cache
 	return (1. * (Z > 0)) * dA
 
-
 def softmax_backward(dA, activation_cache):
 	return None
 
@@ -158,20 +158,45 @@ def linear_activation_backward(dA, cache, activation):
 	return dA_pre, dW, db
 
 
+def L_model_backward(AL , Y , caches):
+	grads = {}
+	L = len(caches)
+	m = AL.shape[1]
+	Y = Y.reshape(AL.shape)
+	#we are finding the derivative with respect to loss
+	dAL = -(np.divide(Y,AL) - np.divide(1-Y , 1-AL))
+	current_cache caches[L-1]
+	grads[dA_prev+str(L)] , grads[dW+str(L)] , grads[db+str(L)] = linear_activation_backward(dAL , current_cache , activation_cache)
+	
 def main():
 	fashion_mnist = keras.datasets.fashion_mnist
 	
 	(train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
-	print(type(train_images))
+	print(type(train_labels))
+	print("-----------"+str(train_labels.shape))
 	batch = 63
 	# get the 1st batch of images from 60,000 images
 	batch1_images = np.zeros((64, 28, 28))
+	batch1_labels = np.zeros((64,10) , dtype = int)
+	print(type(batch1_labels))
 	for i in range(batch):
 		batch1_images[i] = train_images[i]
+		num = int(train_labels[i])
+		batch1_labels[i] = num
+		#print(num)
+		#print((batch1_labels[i]))
+	#batch1_labels.astype(int)
+	#batch1_labels.astype(int)	
+	np.eye(10)[batch1_labels]
+	print(batch1_labels.shape)
+	#for j in range(batch):
+		#print(batch1_labels[j])
 	plt.figure(figsize=(10, 10))
 	# flatten the images to required dimensions
 	batch_ = np.reshape(batch1_images, (64, 784))
 	batch_ = batch_.transpose()
+	#batchlabel_ = np.reshape(batch1_labels, (64, 10))
+	batch1_labels = batch1_labels.transpose()
 	# print(batch_.shape)
 	# plt.subplot(5,5,i+1)
 	plt.grid(False)
@@ -191,6 +216,7 @@ def main():
 	# -----------------------------------------------------------
 	# ----------------to test linear_activation_forward----------
 	A_prev = batch_
+	Y = batch1_labels
 	W = parameters["W1"]
 	b = parameters["b1"]
 	# A , linear_activation_cache = linear_activation_forward(A_prev ,W ,b , activation = "relu")
@@ -198,7 +224,8 @@ def main():
 	# A,linear_activation_cache = linear_activation_forward(A_prev , W,b,activation = "softmax")
 	# print("with softmax: A = " + str(A))
 	AL, cache = L_model_forward(A_prev, parameters)
-
+	print(AL.shape)
+	print("cost =" + str(compute_cost(AL , Y)))
 
 # print(AL)
 if __name__ == "__main__":
