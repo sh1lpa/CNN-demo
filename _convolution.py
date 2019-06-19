@@ -52,33 +52,3 @@ if __name__ == '__main__':
   print(_X)
   X_pad  = zero_pad(train_images,0)
   #print(X_pad[3][2])
-
-
-# import numpy as np
-# import tensorflow as tf
-# from tensorflow import keras
-# import matplotlib.pyplot as plt
-# import math
-
-# # 3 convolution neural network 
-# # 3.1 Zero Padding function
-
-# def zero_pad(X , pad ):
-# 	npad = ((0, 0), (2, 2), (2, 2))
-# 	b = np.pad(X, pad_width=npad, mode='constant', constant_values=0)
-
-# 	return b#np.pad(X , (, (0,0), (0,0)) , 'constant' , constant_values=(0,0))
-
-# def conv_single_step(a_slice_prev  , W , b):
-
-
-# if __name__ == '__main__':
-# 	fashion_mnist = keras.datasets.fashion_mnist
-	
-# 	(train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
-# 	X = train_images
-# 	print(X.shape)
-# 	X_pad  = zero_pad(train_images,0)
-# 	print(X_pad.shape)
-
-# 	

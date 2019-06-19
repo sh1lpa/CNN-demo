@@ -46,14 +46,14 @@ def initialize_parameters_deep(layer_dims):
 	return parameters
 
 
-def relu(Z, linear_cache):
+def relu(Z):
 	# print(type(Z))
 	activation_cache = Z
 	A = np.maximum(0.0, Z)
 	return A, activation_cache
 
 
-def softmax(Z, linear_cache):
+def softmax(Z):
 	activation_cache = Z
 	
 	# print(softmax)
@@ -76,11 +76,11 @@ def linear_forward(A_prev, W, B):
 def linear_activation_forward(A_prev, W, b, activation):
 	if activation == "softmax":
 		Z, linear_cache = linear_forward(A_prev, W, b)
-		A, activation_cache = softmax(Z, linear_cache)
+		A, activation_cache = softmax(Z)
 	
 	elif activation == "relu":
 		Z, linear_cache = linear_forward(A_prev, W, b)
-		A, activation_cache = relu(Z, linear_cache)
+		A, activation_cache = relu(Z)
 	
 	# assert(A.shape == W.shape[0],A.shape[1])
 	cache = (linear_cache, activation_cache)
@@ -129,7 +129,7 @@ def linear_backward(dZ, cache):
 	db = np.sum(dZ, axis=1, keepdims=True) / m
 	dA_pre = np.dot(W.T, dZ)
 	
-	assert (dA_pre.shape == A.shape)
+	
 	assert (dW.shape == W.shape)
 	assert (db.shape == b.shape)
 	return dA_pre, dW, db
@@ -141,7 +141,12 @@ def relu_backward(dA, activation_cache):
 	return (1. * (Z > 0)) * dA
 
 def softmax_backward(dA, activation_cache):
-	return None
+	z = activation_cache
+	s = softmax(z)[0]
+	print(s.shape)
+	ONE = np.ones(s.shape) 	
+	print(ONE.shape)
+	return np.dot((np.dot(s,(ONE- s).T)) , dA) 
 
 
 def linear_activation_backward(dA, cache, activation):
@@ -149,11 +154,11 @@ def linear_activation_backward(dA, cache, activation):
 	
 	if activation == "relu":
 		dZ = relu_backward(dA, activation_cache)
-		dA_pre, dW, db = linear_backward(dZ, cache)
+		dA_pre, dW, db = linear_backward(dZ, linear_cache)
 	
 	elif activation == "softmax":
 		dZ = softmax_backward(dA, activation_cache)
-		dA_pre, dW, db = linear_backward(dZ, cache)
+		dA_pre, dW, db = linear_backward(dZ, linear_cache)
 	
 	return dA_pre, dW, db
 
@@ -165,20 +170,43 @@ def L_model_backward(AL , Y , caches):
 	Y = Y.reshape(AL.shape)
 	#we are finding the derivative with respect to loss
 	dAL = -(np.divide(Y,AL) - np.divide(1-Y , 1-AL))
-	current_cache caches[L-1]
-	grads[dA_prev+str(L)] , grads[dW+str(L)] , grads[db+str(L)] = linear_activation_backward(dAL , current_cache , activation_cache)
+	current_cache  = caches[L-1]
+	grads["dA"+str(L-1)] , grads["dW"+str(L)] , grads["db"+str(L)] = linear_activation_backward(dAL , current_cache , activation = "softmax")
 	
+	for l in reversed(range(L-1)):
+		current_cache = caches[l]
+		dA_prev_temp , dw_temp , db_temp = linear_activation_backward(grads["dA" + str(l+1)] ,current_cache , activation = "relu")
+		grads["dA" + str(l)] = dA_prev_temp
+		grads["dW" + str(l+1)] = dw_temp
+		grads["db" + str(l+1)] = db_temp
+
+	return grads	
+
+
+
+def update_parameters(parameters , grads , learning_rate):
+	L = len(parameters) //2
+	for l in range(L):
+		k1 = parameters["W"+str(l+1)] - learning_rate * grads["dW"+str(l+1)]
+		parameters["W"+str(l+1)] = k1
+		print("W"+ str(l+1) +"  :" + str(k1))
+		k2 = parameters["b"+str(l+1)] - learning_rate * grads["db"+str(l+1)]
+		parameters["b"+str(l+1)] =k2
+		print("b"+ str(l+1) +"  :" +str(k2))
+		#print(parameters["W"+str(l+1)])
+	return parameters	
+
 def main():
 	fashion_mnist = keras.datasets.fashion_mnist
 	
 	(train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
-	print(type(train_labels))
-	print("-----------"+str(train_labels.shape))
+	#print(type(train_labels))
+	#print("-----------"+str(train_labels.shape))
 	batch = 63
 	# get the 1st batch of images from 60,000 images
 	batch1_images = np.zeros((64, 28, 28))
 	batch1_labels = np.zeros((64,10) , dtype = int)
-	print(type(batch1_labels))
+	#print(type(batch1_labels))
 	for i in range(batch):
 		batch1_images[i] = train_images[i]
 		num = int(train_labels[i])
@@ -223,9 +251,16 @@ def main():
 	# print("with reLU : A =" + str(A))
 	# A,linear_activation_cache = linear_activation_forward(A_prev , W,b,activation = "softmax")
 	# print("with softmax: A = " + str(A))
-	AL, cache = L_model_forward(A_prev, parameters)
-	print(AL.shape)
-	print("cost =" + str(compute_cost(AL , Y)))
+	AL, caches = L_model_forward(A_prev, parameters)
+	# print(AL.shape)
+	#print("cost =" + str(compute_cost(AL , Y)))
+	grads = L_model_backward(AL, Y, caches)
+	L = len(parameters)//2
+	#for l in range(L):
+	#	print(parameters["W"+str(l+1)])
+
+	print("--------------------------------------------------------------------")	
+	update_parameters(parameters , grads , 0.1)
 
 # print(AL)
 if __name__ == "__main__":
